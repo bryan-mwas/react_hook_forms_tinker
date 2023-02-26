@@ -10,6 +10,10 @@ interface UserReg {
 export default function App() {
   const { control, handleSubmit, watch, formState } = useForm<UserReg>({
     mode: "onChange",
+    defaultValues: {
+      email: "",
+      name: "",
+    },
   });
   const onSubmit: SubmitHandler<UserReg> = (data) => console.log(data);
 
