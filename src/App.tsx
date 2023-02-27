@@ -1,5 +1,5 @@
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Form, Button } from "reactstrap";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { Form, Button, Col, Input, Row } from "reactstrap";
 import { DynamicInput } from "./components/DynamicInput";
 import { FormInput } from "./components/Input";
 import { FormSelect } from "./components/Select";
@@ -7,8 +7,7 @@ import { FormSelect } from "./components/Select";
 interface UserReg {
   email: string;
   name: string;
-  selected: [];
-  companyShares: [];
+  companyShares: { company: string; share: number }[];
 }
 
 export default function App() {
@@ -17,14 +16,18 @@ export default function App() {
     defaultValues: {
       email: "",
       name: "",
-      selected: undefined,
-      companyShares: undefined,
+      companyShares: [{ company: "Makita", share: 0 }],
     },
   });
-  const onSubmit: SubmitHandler<UserReg> = (data) => console.log(data);
+  const { fields, append } = useFieldArray({
+    name: "companyShares",
+    control,
+  });
+  const onSubmit: SubmitHandler<UserReg> = (data) =>
+    console.log(data.companyShares);
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)} className="p-4">
       <FormInput
         label="Name"
         name={"name"}
@@ -43,22 +46,48 @@ export default function App() {
         control={control}
         type={"email"}
       />
-      <FormSelect
-        name="selected"
-        control={control}
-        isMulti={true}
-        options={[
-          { label: "Banana", value: "banana", color: "yellow" },
-          { label: "Chocolate", value: "chocolate" },
-          { label: "Guava", value: "guava" },
-        ]}
-      />
-      <DynamicInput
-        name="companyShares"
-        register={register}
-        control={control as any}
-      />
-      <pre>{JSON.stringify(formState.errors, null, 2)}</pre>
+      <Button
+        onClick={() =>
+          append({
+            company: "",
+            share: 0,
+          })
+        }
+      >
+        Add
+      </Button>
+      {fields.map((field, index) => {
+        return (
+          <Row key={field.id}>
+            <Col className="g-3">
+              <FormInput
+                control={control}
+                type="select"
+                name={`companyShares.${index}.company` as const}
+                label={"Company"}
+              >
+                <option>Bosch</option>
+                <option>Makita</option>
+                <option>Ryobi</option>
+                <option>Ingco</option>
+              </FormInput>
+            </Col>
+            <Col className="g-3">
+              <FormInput
+                control={control}
+                type="number"
+                name={`companyShares.${index}.share` as const}
+                label={"Company Share"}
+                rules={{
+                  required: true,
+                }}
+                defaultValue={field.share}
+              />
+            </Col>
+          </Row>
+        );
+      })}
+      <pre>{JSON.stringify(formState.touchedFields, null, 2)}</pre>
       <Button>Submit</Button>
     </Form>
   );

@@ -9,6 +9,7 @@ import { InputType } from "reactstrap/types/lib/Input";
 interface InputParams {
   label: string;
   type?: InputType;
+  children?: any;
 }
 export function FormInput<T extends FieldValues>(
   props: UseControllerProps<T> & InputParams
@@ -26,7 +27,9 @@ export function FormInput<T extends FieldValues>(
         placeholder={props.label}
         type={props?.type || "text"}
         invalid={!!error}
-      />
+      >
+        {props.children}
+      </Input>
       <Label for={props.name}>{props.label}</Label>
       <FormFeedback>{error?.message}</FormFeedback>
     </FormGroup>
